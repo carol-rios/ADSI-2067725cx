@@ -1,9 +1,6 @@
-import categoria from "../models/categoria.js";
-// import Categoria from "../models/categoria.js"
+import Categoria from "../models/categoria.js";
 
-
-const categoriaControlles = {
-
+const categoriaController = {
     categoriaGet: async (req, res) => {
         const value = req.query.value;
         const categoria = await Categoria
@@ -18,14 +15,13 @@ const categoriaControlles = {
 
                 ]
             })
-
-        // //  .sort({'createdAt':-1})
-        // // }
-
+        //  .sort({'createdAt':-1})
+        // }
         res.json({
             categoria
         })
     },
+
 
     categoriaGetById: async (req, res) => {
         const value = req.query.value;
@@ -57,10 +53,12 @@ const categoriaControlles = {
     },
 
     categoriaPut: async (req, res) => {
-        //     const {id}=req.params
-        //     const {id,estado,createAt,_v,...resto}=req.body
+        const { id } = req.params
+        const { _id , estado, createAt, _v, ...resto } = req.body
 
-        // const categoria=await categoria.findByIdAndUpdate(id, resto);
+        const categoria = await categoria.findByIdAndUpdate(id, resto);
+
+
 
         res.json({
             categoria
@@ -69,32 +67,32 @@ const categoriaControlles = {
     },
 
     categoriaPutActivar: async (req, res) => {
-        //     const {id}=req.params
-        // const categoria=await categoria.findByIdAndUpdate(id,{estado:1});
-        // res.json({
-        //     categoria
-        // })
+        const { id } = req.params
+        const categoria = await categoria.findByIdAndUpdate(id, { estado: 1 });
+        res.json({
+            categoria
+        })
 
     },
 
     categoriaPutDesactivar: async (req, res) => {
-        //     const {id}=req.params
-        // const categoria=await categoria.findByIdAndUpdate(id,{estado:0});
-        // res.json({
-        //     categoria
-        // })
+        const { id } = req.params
+        const categoria = await categoria.findByIdAndUpdate(id, { estado: 0 });
+        res.json({
+            categoria
+        })
 
     },
 
-    categoriaDelete: async (req, res) => {
-        //     const {id}=req.params
-        // const categoria=await categoria.findByIdAndDelete(id);
-        // res.json({
-        //     categoria
-        // })
+    categoriaPutDelete: async (req, res) => {
+        const { id } = req.params
+        const categoria = await categoria.findByIdAndDelete(id);
+        res.json({
+            categoria
+        })
 
     },
 
 }
 
-export default categoriaControlles;
+export default categoriaController

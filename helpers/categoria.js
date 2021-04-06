@@ -4,14 +4,14 @@ const existeCategoriaById=async (id)=>{
 
     const existe= await categoria.findById(id)
 
-if (!exixte)throw new Error (`el ID no existe ${id}`)
+if (!existe)throw new Error (`el id no existe ${id}`)
     
 }
 
-const existeCategoriaByIdNombre=async (id)=>{
+const existeCategoriaByNombre=async (id)=>{
 
     const existe= await categoria.findOne({nombre})
-    if (!exixte)throw new Error ('ya existe una categoria con ese nonbre')
+    if (!existe)throw new Error ('ya existe una categoria con ese nonbre')
 }
 
-export {existeCategoriaById,existeCategoriaByIdNombre}
+export default {existeCategoriaById,existeCategoriaByNombre}

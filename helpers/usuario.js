@@ -1,11 +1,15 @@
 import Usuario from "../models/usuario.js"
 
-const existeUsuario=async()=>{
+const existeUsuarioById=async(id)=>{
 
     const existe=await Usuario.findById(id)
 
-    // if () {
+    if (!existe) {
+
+        throw new Error('El ID no existe');
         
-    // }
+    }
 }
+
+export default existeUsuarioById
 // min 38:48

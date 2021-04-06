@@ -1,54 +1,139 @@
-import mirouter  from 'express';
-import categoriaControlles from '../controlles/categoria.js'
-import { existeCategoriaById, existeCategoriaByIdNombre } from '../helpers/categoria.js';
-import { validarCampos } from '../middlewares/validar-campos.js';
-// DESCARGAR EXPRESS-VALIDATOR, consola=>(npm i express-validator)
-import validador from 'express-validator'
-const {check}=validador
+import Router from 'express';
+import {check} from 'express-validator'
+import categoriaController from '../controlles/categoria.js';
+import validadorCampos from '../middlewares/validar-campos.js'
+import existeCategoriaById from '../helpers/categoria.js'
+import existeCategoriaByNombre from '../helpers/categoria.js'
+import {validarJWT} from '../middlewares/validar-jwt.js'
+import validarRoles from '../middlewares/validar_rol.js'
 
+const router = Router();
 
-const {Router} = mirouter;
-const router= Router();
+router.get('/',[
+    validarJWT,
+    validarRoles('ALMACENISTA_ROL'), 
+     validadorCampos
+], categoriaController.categoriaGet);
 
- router.get('/',categoriaControlles.categoriaGet);   
+router.get('/:id', [
+     validarJWT,
+    validarRoles('ALMACENISTA_ROL'), 
+     check('id', 'No es valido').isMongoId(),
+     check('id').custom(existeCategoriaById),
+     validadorCampos
 
- router.get('/:id',[
-    check('id','No es un ID valido').isMongoId(),
+], categoriaController.categoriaGetById);
+
+router.post('/', [
+    validarJWT,
+    validarRoles('ALMACENISTA_ROL'), 
+    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('nombre').custom(existeCategoriaByNombre),
+    validadorCampos
+
+], categoriaController.categoriaPost);
+
+router.put('/:id', [
+    validarJWT,
+    validarRoles('ALMACENISTA_ROL'), 
+    check('id', 'No es valido').isMongoId(),
     check('id').custom(existeCategoriaById),
-    validarCampos
- ],categoriaControlles.categoriaGetById); 
+    check('nombre').custom(existeCategoriaByNombre),
+    validadorCampos
+], categoriaController.categoriaPut);
 
-router.post('/',[
-    check('nombre','el nombre es obligatorio',).not().isEmpty(),
-    check('nombre').custom(existeCategoriaByIdNombre),
-    validarCampos
-],categoriaControlles.categoriaPost);
-
-router.post('/login',)
-
-router.put('/:id',[
-    check('id','No es un ID valido').isMongoId(),
+router.put('/activar/:id', [
+    validarJWT,
+    validarRoles('ALMACENISTA_ROL'), 
+    check('id', 'No es valido').isMongoId(),
     check('id').custom(existeCategoriaById),
-    check('nombre').custom(existeCategoriaByIdNombre),
-    validarCampos
- ],categoriaControlles.categoriaPut);
+    validadorCampos
+], categoriaController.categoriaPutActivar);
 
-router.put('/activar/:id',[
-    check('id','No es un ID valido').isMongoId(),
+router.get('/desactivar/:id', [
+    validarRoles('ALMACENISTA_ROL'), 
+    check('id', 'No es valido').isMongoId(),
     check('id').custom(existeCategoriaById),
-    validarCampos
- ],categoriaControlles.categoriaPutActivar);
+    validadorCampos
+], categoriaController.categoriaPutDesactivar);
 
-router.put('/desactivar/:id',[
-    check('id','No es un ID valido',).isMongoId(),
+router.delete('/:id', [
+    validarJWT,
+    validarRoles('ALMACENISTA_ROL'), 
+    check('id', 'No es valido').isMongoId(),
     check('id').custom(existeCategoriaById),
-    validarCampos
- ],categoriaControlles.categoriaPutDesactivar);
-
-router.delete('/:id',[
-    check('id','No es un ID valido',).isMongoId(),
-    check('id').custom(existeCategoriaById),
-    validarCampos
- ],categoriaControlles.categoriaDelete);
+    validadorCampos
+], categoriaController.categoriaPutDelete)
 
 export default router;
+
+// import mirouter  from 'express';
+// import categoriaControlles from '../controlles/categoria.js';
+// import { existeCategoriaById, existeCategoriaByIdNombre } from '../helpers/categoria.js';
+// import { validarCampos } from '../middlewares/validar-campos.js';
+// import {validarJWT} from '../middlewares/validar-jwt.js';
+// import validador from 'express-validator';// DESCARGAR EXPRESS-VALIDATOR, consola=>(npm i express-validator)
+// import validarRoles from '../middlewares/validar_rol.js'
+
+// const {check}=validador
+// const {Router} = mirouter;
+// const router= Router();
+
+//  router.get('/',[
+//     validarJWT,
+//     validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     validarCampos
+//  ],categoriaControlles.categoriaGet);   
+
+//  router.get('/:id',[
+//     validarJWT,
+//    //  validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     check('id','No es un ID valido').isMongoId(),
+//     check('id').custom(existeCategoriaById),
+//     validarCampos
+//  ],categoriaControlles.categoriaGetById); 
+
+// router.post('/',[
+//     validarJWT,
+//    //  validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     check('nombre','el nombre es obligatorio').not().isEmpty(),
+//     check('nombre').custom(existeCategoriaByIdNombre),
+//     validarCampos
+// ],categoriaControlles.categoriaPost);
+
+// // router.post('/login',)
+
+// router.put('/:id',[
+//     validarJWT,
+//    //  validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     check('id','No es un ID valido').isMongoId(),
+//     check('id').custom(existeCategoriaById),
+//     check('nombre').custom(existeCategoriaByIdNombre),
+//     validarCampos
+//  ],categoriaControlles.categoriaPut);
+
+// router.put('/activar/:id',[
+//     validarJWT,
+//    //  validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     check('id','No es un ID valido').isMongoId(),
+//     check('id').custom(existeCategoriaById),
+//     validarCampos
+//  ],categoriaControlles.categoriaPutActivar);
+
+// router.put('/desactivar/:id',[
+//     validarJWT,
+//    //  validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     check('id','No es un ID valido').isMongoId(),
+//     check('id').custom(existeCategoriaById),
+//     validarCampos
+//  ],categoriaControlles.categoriaPutDesactivar);
+
+// router.delete('/:id',[
+//     validarJWT,
+//    //  validarRoles('ALMACENISTA_ROL','ADMIN_ROL','VENDEDOR_ROL'),
+//     check('id','No es un ID valido').isMongoId(),
+//     check('id').custom(existeCategoriaById),
+//     validarCampos
+//  ],categoriaControlles.categoriaDelete);
+
+// export default router;

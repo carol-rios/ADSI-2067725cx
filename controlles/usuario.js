@@ -1,127 +1,119 @@
 import { generarTokenJWT } from '../middlewares/validar-jwt.js';
-import Usuario from '../models/usuario.js'
-import bcryptjs from 'bcryptjs' // =>DESCARGAR.....
-import jsonWebToken from 'jsonwebtoken' // =>DESCARGAR.....(npm i jsonwebtoken)
+// import Usuario from '../models/usuario.js'
+ import bcryptjs from 'bcryptjs' // =>DESCARGAR.....
+// // import jsonWebToken from 'jsonwebtoken' // =>DESCARGAR.....(npm i jsonwebtoken)
 
+import Usuario from '../models/usuario.js'
+// import bcryptjs from 'bcrypt'
+// import {generarJWT} from '../middlewares/validar-jwt.js'
 
 const usuarioControlles = {
 
     usuarioGet: async (req, res) => {
-        const query = req.query.value;
-        const usuarios = await Usuario.find();
+        const query = req.query.value
+        const usuarios = await Usuario.find({
+            $or: [
+                { nombre: new RegExp(query, 'i') },
+                { email: new RegExp(query, 'i') },
+                { rol: new RegExp(query, 'i') }
+            ]
+        });
 
-        $or: [
-            { nombre: new RegExp(query, 'i') },
-            { email: new RegExp(query, 'i') },
-            { rol: new RegExp(query, 'i') }
-        ]
 
         res.json({
-            categoria
+            usuarios
         })
     },
 
-    usuarioGetById: async (req, res) => {
-
-        const { id } = req.params;
-
-        const usuario = await usuario.findById({ id })
-
-        res.json({
-            categoria
-        })
-    },
-
-    usuarioPost: async (req, res) => {
-        const { nombre, email, password, rol } = req.body;
-        const usuario = Usuario({ nombre, email, password, rol });
-
-        // ENCRIPTACION DE CONRASEÑA CON 'bcryptjs'......
-
-        //   const salt=bcryptjs.genSaltSync();
-        // usuario.password=bcryptjs.hashSync(password,salt);
-
-        await usuario.save();
+    usuarioGetByid: async (req, res) => {
+        const { id } = req.params
+        const usuario = await Usuario.findById({id})
 
         res.json({
             usuario
         })
     },
 
-  login: async (req, res) => {
 
-        const { email, password } = req.body;
+usuarioPost: async (req, res) => {
+    const { nombre, email, password, rol } = req.body;
+    const usuario = Usuario({ nombre, email, password, rol });
 
-        const usuario = await Usuario.findOne({ email })
+    // ENCRIPTACION DE CONRASEÑA CON 'bcryptjs'......
+    const salt = bcryptjs.genSaltSync();
 
-        if (!usuario) {
-            return res.json({
-                msg: 'usuario/password no son correctos email'
-            })
+    usuario.password = bcryptjs.hashSync(password, salt);
+    usuario.save();
 
-        }
-        if (usuario.estado === 0) {
-            return res.json({
-                msg: 'usuario/password no son correctos estado'
-            })
-        }
-        const validatePassword = bcryptjs.compareSync(password, usuario.password);
+    res.json({
+        usuario
+    })
 
-        if (!validatePassword) {
-            return res.json({
-                msg: 'usuario/password no son correctos password'
-            })
-        }
+},
 
-        generarTokenJWT
+login: async (req, res) => {
+    const { email, password } = req.body;
 
+    const usuario = await Usuario.findOne({ email });
+
+    if (!usuario) {
         return res.json({
-            usuario
+            mgs: 'Usuario/ password no son correctos email '
         })
-
-
-    },  
-
-    usuarioPut: async (req, res) => {
-        const { id } = req.params
-        const { _id, createAt, estado, _v, email, rol, pasword, ...resto } = req.body
-
-        if (password) {
-              const salt=bcryptjs.genSaltSync();
-            resto.password=bcryptjs.hashSync(password,salt);   
-
-        }
-
-        const usuario = await Usuario.findByIdAndUpdate(id, resto);
-
-        res.json({
-            usuario
-        })
-
-    },
-
-    usuarioPutActivar: async (req, res) => {
-        const { id } = req.params
-        const usuario = await usuario.findByIdAndUpdate(id, { estado: 1 });
-
-        res.json({ usuario })
-
-    },
-
-    usuarioPutDesactivar: async (req, res) => {
-        const { id } = req.params
-        const usuario = await usuario.findByIdAndUpdate(id, { estado: 0 });
-        res.json({ usuario })
-
-
 
     }
+    if (usuario.estado === 0) {
+        return res.json({
+            msg: 'Usuario/ password no son correctos estado'
+        })
+    }
+    const validarPassword = bcryptjs.compareSync(password, usuario.password)
+    if (!validarPassword) {
+        res.json({
+            msg: 'Usuario/ password no son correctos password'
+        })
+
+    }
+
+   const token= await generarTokenJWT(usuario.id);
+
+    res.json({
+      usuario, 
+      token
+    })
+},
+
+usuarioPut: async (req, res) => {
+    const { id } = req.params
+    const { __id, createdAt, estado, _v, email, rol, password, ...resto } = req.body
+    if (password) {
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync(password, salt);
+    }
+    const usuario = await Usuario.findOneAndUpdate(id, resto)
+
+    res.json({
+        usuario
+    })
+
+},
+usuarioPutactivar: async (req, res) => {
+    const { id } = req.params
+    const usuario = await Usuario.findByIdAndUpdate(id, { estado: 1 })
+
+
+    res.json({ usuario })
+
+},
+
+usuarioPutdesactivar: async (req, res) => {
+    const { id } = req.params
+    const usuario = await Usuario.findByIdAndUpdate(id, { estado: 0 })
+
+
+    res.json({ usuario })
+
+},
 }
 
 export default usuarioControlles
-
-
-
-
-
-

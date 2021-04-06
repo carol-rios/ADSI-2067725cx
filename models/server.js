@@ -3,6 +3,9 @@ import cors from 'cors';
 import dbconnection from '../database/config.js';
 import categoria from '../routes/categoria.js';
 import usuario from '../routes/usuario.js';
+import articulo  from '../routes/articulo.js';
+import Persona from '../routes/persona.js';
+import compra from '../routes/compra.js'
 
 class Server{
     constructor(){
@@ -15,6 +18,9 @@ class Server{
 routes(){
 this.app.use("/api/categoria",categoria)
 this.app.use("/api/usuario",usuario)
+this.app.use('/api/articulo',articulo)
+this.app.use('/api/persona',Persona)
+this.app.use('/api/compra',compra)
 }
 
 async conectarBD(){

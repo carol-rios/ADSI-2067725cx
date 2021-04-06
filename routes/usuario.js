@@ -17,4 +17,4 @@ router.put('/activar/:id',usuarioControlles.usuarioPutActivar);
 
 router.put('/desactivar/:id',usuarioControlles.usuarioPutDesactivar);
 
-export default router;
+export default router
